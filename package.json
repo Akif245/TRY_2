@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@bull-board/api": "^6.20.3",
+    "@bull-board/express": "^6.20.3",
     "bullmq": "^5.70.1",
     "express": "^5.2.1",
     "ioredis": "^5.10.0"

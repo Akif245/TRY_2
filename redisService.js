@@ -57,6 +57,75 @@
 //   getVideoStatus
 // };
 
+// const redis = require("./redis");
+
+// /* =========================
+//    LOGIN RATE LIMIT
+// ========================= */
+
+// async function checkLoginAttempts(userId) {
+//   const key = `login:${userId}`;
+
+//   const attempts = await redis.get(key);
+
+//   if (attempts && attempts >= 5) {
+//     return false;
+//   }
+
+//   await redis.incr(key);
+//   await redis.expire(key, 60);
+
+//   return true;
+// }
+
+
+// /* =========================
+//    MCQ TIMER
+// ========================= */
+
+// async function startMCQ(userId, courseId) {
+//   const key = `mcq:${userId}:${courseId}`;
+
+//   await redis.set(key, "active", "EX", 900);
+
+//   return true;
+// }
+
+// async function isMCQActive(userId, courseId) {
+//   const key = `mcq:${userId}:${courseId}`;
+
+//   const value = await redis.get(key);
+
+//   return value !== null;
+// }
+
+
+// /* =========================
+//    VIDEO STATUS
+// ========================= */
+
+// async function setVideoStatus(submissionId, status) {
+//   const key = `video:${submissionId}`;
+
+//   await redis.set(key, status);
+
+//   return true;
+// }
+
+// async function getVideoStatus(submissionId) {
+//   const key = `video:${submissionId}`;
+
+//   return await redis.get(key);
+// }
+
+// module.exports = {
+//   checkLoginAttempts,
+//   startMCQ,
+//   isMCQActive,
+//   setVideoStatus,
+//   getVideoStatus
+// };
+
 const redis = require("./redis");
 
 /* =========================
@@ -80,23 +149,40 @@ async function checkLoginAttempts(userId) {
 
 
 /* =========================
-   MCQ TIMER
+   MCQ START + ATTEMPT LOCK
 ========================= */
 
 async function startMCQ(userId, courseId) {
+
   const key = `mcq:${userId}:${courseId}`;
 
+  const exists = await redis.get(key);
+
+  if (exists) {
+    throw new Error("MCQ already attempted");
+  }
+
+  // store MCQ start with 15 min timer
   await redis.set(key, "active", "EX", 900);
+    // await redis.set(key, "active", "EX", 30);  //to check i did it 30 seconds
+
 
   return true;
 }
 
+
+/* =========================
+   MCQ TIMER CHECK
+========================= */
+
 async function isMCQActive(userId, courseId) {
+
   const key = `mcq:${userId}:${courseId}`;
 
   const value = await redis.get(key);
 
   return value !== null;
+
 }
 
 
@@ -105,18 +191,23 @@ async function isMCQActive(userId, courseId) {
 ========================= */
 
 async function setVideoStatus(submissionId, status) {
+
   const key = `video:${submissionId}`;
 
   await redis.set(key, status);
 
   return true;
+
 }
 
 async function getVideoStatus(submissionId) {
+
   const key = `video:${submissionId}`;
 
   return await redis.get(key);
+
 }
+
 
 module.exports = {
   checkLoginAttempts,

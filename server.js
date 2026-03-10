@@ -202,14 +202,37 @@ app.post("/login", async (req,res)=>{
 START MCQ
 ====================== */
 
-app.post("/start-mcq", async(req,res)=>{
+// app.post("/start-mcq", async(req,res)=>{
 
-  const {userId,courseId} = req.body;
+//   const {userId,courseId} = req.body;
 
-  await startMCQ(userId,courseId);
+//   await startMCQ(userId,courseId);
 
-  res.json({message:"MCQ started"});
+//   res.json({message:"MCQ started"});
+// });
+app.post("/start-mcq", async (req, res) => {
+
+  try {
+
+    const { userId, courseId } = req.body;
+
+    await startMCQ(userId, courseId);
+
+    res.json({
+      message: "MCQ started"
+    });
+
+  } catch (error) {
+
+    res.status(400).json({
+      message: error.message
+    });
+
+  }
+
 });
+
+
 
 
 /* ======================
